@@ -1,0 +1,444 @@
+{% extends "layouts.html" %}
+{% block content %}
+
+<div class="welcome-message">
+    <h1>Data Mahasiswa</h1>
+        <input type="text" id="searchInput" placeholder="Cari Mahasiswa..." onkeyup="searchTable()" class="search-input">   
+</div>
+
+<div class="table-container">
+    <div class="button-container">
+        <button class="btn btn-add" onclick="openModal()">Tambah Data</button>
+    </div>
+    <table class="styled-table" id="mahasiswaTable">
+        <thead>
+            <tr>
+                <th>No</th>
+                <th>Nama Mahasiswa</th>
+                <th>NIM</th>
+                <th>Kelas</th>
+                <th>WhatsApp</th>
+                <th>Generate Code</th>
+                <th>Aksi</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for mhs in mahasiswa %}
+                <tr>
+                    <td>{{ loop.index }}</td>
+                    <td>{{ mhs[1] }}</td>  <!-- Nama Mahasiswa -->
+                    <td>{{ mhs[2] }}</td>  <!-- NIM -->
+                    <td>{{ mhs[3] }}</td>  <!-- Kelas -->
+                    <td>
+                        <button class="btn btn-whatsapp" onclick="openWhatsApp('{{ mhs[4] }}')">Chat</button>
+                    </td>  <!-- WhatsApp -->
+                    <td>{{ mhs[5] }}</td>
+                    <td>
+                        <button class="btn btn-warning" onclick="openEditModal('{{ mhs[0] }}', '{{ mhs[1] }}', '{{ mhs[2] }}', '{{ mhs[3] }}', '{{ mhs[4] }}', '{{ mhs[5] }}')">Edit</button> 
+                        <button class="btn btn-danger" onclick="openDeleteModal('{{ mhs[0] }}')">Delete</button>
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<!-- Modal form untuk tambah data mahasiswa -->
+<div id="addMahasiswaModal" class="modal">
+    <div class="modal-content">
+        <span class="close" onclick="closeModal()">&times;</span>
+        <h2>Tambah Data Mahasiswa</h2>
+        <form action="{{ url_for('add_mahasiswa') }}" method="POST">
+            <div class="modal-body">
+                <div class="form-group">
+                    <label for="nama">Nama Mahasiswa:</label>
+                    <input type="text" id="nama" name="nama" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label for="nim">NIM:</label>
+                    <input type="text" id="nim" name="nim" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label for="kelas">Kelas:</label>
+                    <input type="text" id="kelas" name="kelas" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label for="whatsapp">WhatsApp:</label>
+                    <input type="text" id="whatsapp" name="whatsapp" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label for="code">Code Akses:</label>
+                    <input type="text" id="code" name="code" class="form-control" readonly required>
+                    <button type="button" onclick="generateCode()" class="btn btn-secondary">Generate Code</button>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="submit" class="btn btn-primary">Tambah Mahasiswa</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Modal form untuk edit data mahasiswa -->
+<div id="editMahasiswaModal" class="modal">
+    <div class="modal-content">
+        <span class="close" onclick="closeEditModal()">&times;</span>
+        <h2>Edit Data Mahasiswa</h2>
+        <form action="{{ url_for('edit_mahasiswa') }}" method="POST">
+            <input type="hidden" id="editId" name="id">
+            <div class="modal-body">
+                <div class="form-group">
+                    <label for="editNama">Nama Mahasiswa:</label>
+                    <input type="text" id="editNama" name="nama" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label for="editNim">NIM:</label>
+                    <input type="text" id="editNim" name="nim" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label for="editKelas">Kelas:</label>
+                    <input type="text" id="editKelas" name="kelas" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label for="editWhatsapp">WhatsApp:</label>
+                    <input type="text" id="editWhatsapp" name="whatsapp" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label for="editCode">Code Akses:</label>
+                    <input type="text" id="editCode" name="code" class="form-control" readonly required>
+                    <button type="button" onclick="generateEditCode()" class="btn btn-secondary">Generate Code</button>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="submit" class="btn btn-primary">Simpan Perubahan</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Modal form untuk konfirmasi delete data mahasiswa -->
+<div id="deleteMahasiswaModal" class="modal">
+    <div class="modal-content">
+        <span class="close" onclick="closeDeleteModal()">&times;</span>
+        <h2>Hapus Data Mahasiswa</h2>
+        <p>Apakah Anda yakin ingin menghapus data ini?</p>
+        <form action="{{ url_for('delete_mahasiswa') }}" method="POST">
+            <input type="hidden" id="deleteId" name="id">
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" onclick="closeDeleteModal()">Batal</button>
+                <button type="submit" class="btn btn-danger">Hapus</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+
+<style>
+    .table-container {
+        width: 100%;
+        margin: 20px auto;
+        background-color: #f9f9f9;
+        padding: 20px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        border-radius: 8px;
+    }
+
+    .button-container {
+        text-align: right;
+        margin-bottom: 10px;
+    }
+
+    .btn {
+        padding: 6px 10px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 14px;
+    }
+
+    .btn-add {
+        background-color: #007bff;
+        color: white;
+    }
+
+    .btn-add:hover {
+        background-color: #0056b3;
+    }
+
+    .styled-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 16px;
+        text-align: left;
+    }
+
+    .styled-table thead tr {
+        background-color: #157eff;
+        color: white;
+        font-size: 18px;
+    }
+
+    .styled-table th, .styled-table td {
+        padding: 10px 12px;
+        white-space: normal;
+    }
+
+    .styled-table tbody tr:nth-of-type(even) {
+        background-color: #f3f3f3;
+    }
+
+    .styled-table tbody tr:hover {
+        background-color: #f1f1f1;
+    }
+
+    .btn-secondary {
+        background-color: #6c757d;
+        color: white;
+    }
+
+    .btn-primary {
+        background-color: #007bff;
+        color: white;
+    }
+
+    .btn-danger {
+        background-color: #dc3545;
+        color: white;
+    }
+
+    .btn-whatsapp {
+        background-color: #25d366;
+        color: white;
+    }
+
+    .btn-whatsapp:hover {
+        background-color: #1ebc53;
+    }
+
+    .btn-secondary:hover {
+        background-color: #5a6268;
+    }
+
+    .btn-primary:hover {
+        background-color: #0056b3;
+    }
+
+    .btn-danger:hover {
+        background-color: #c82333;
+    }
+
+    .modal {
+        display: none;
+        position: fixed;
+        z-index: 1;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.6); /* Darker overlay for emphasis */
+    }
+
+    .modal-content {
+        background-color: #fff;
+        margin: 5% auto;
+        padding: 20px;
+        width: 40%;
+        max-width: 500px;
+        border-radius: 12px; /* Rounded corners */
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3); /* Deeper shadow for a pop-up effect */
+        position: relative;
+        animation: fadeIn 0.3s ease-in-out;
+    }
+
+    .modal-title {
+        font-size: 22px;
+        font-weight: bold;
+        text-align: center;
+        margin-bottom: 15px;
+        color: #333;
+    }
+
+    .close {
+        position: absolute;
+        top: 15px;
+        right: 15px;
+        color: #666;
+        font-size: 24px;
+        font-weight: bold;
+        cursor: pointer;
+    }
+
+    .close:hover {
+        color: #333;
+    }
+
+    .modal-body {
+        padding: 10px 20px;
+    }
+
+    .form-group {
+        margin-bottom: 15px;
+    }
+
+    .form-group label {
+        font-weight: bold;
+        color: #555;
+        font-size: 14px;
+    }
+
+    .form-control {
+        width: 100%;
+        padding: 10px;
+        margin-top: 5px;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        font-size: 16px;
+        transition: border-color 0.3s;
+    }
+
+    .form-control:focus {
+        border-color: #007bff;
+        outline: none;
+        box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+    }
+
+    .modal-footer {
+        text-align: center;
+        margin-top: 20px;
+    }
+
+    .btn-primary {
+        background-color: #007bff;
+        color: white;
+        border: none;
+        border-radius: 8px;
+        padding: 10px 20px;
+        font-size: 16px;
+        cursor: pointer;
+        transition: background-color 0.3s;
+    }
+
+    .btn-primary:hover {
+        background-color: #0056b3;
+    }
+
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(-10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+    .search-input {
+        padding: 10px 20px; /* Tambahkan padding horizontal lebih besar untuk oval */
+        font-size: 14px;
+        border: 1px solid #ddd;
+        border-radius: 30px; /* Ini yang membuat input menjadi oval */
+        width: 250px; /* Sesuaikan lebar input */
+        outline: none;
+        transition: border-color 0.3s ease, box-shadow 0.3s ease;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Tambahkan efek bayangan */
+    }
+    
+    .search-input:focus {
+        border-color: #007bff;
+        box-shadow: 0 0 10px rgba(0, 123, 255, 0.3); /* Bayangan saat fokus */
+    }       
+</style>
+
+<script>
+    function openWhatsApp(phoneNumber) {
+        const whatsappURL = `https://wa.me/${phoneNumber}`;
+        window.open(whatsappURL, '_blank');
+    }
+
+    function generateCode() {
+        const code = Math.random().toString(36).substring(2, 10).toUpperCase(); // Generate random code
+        document.getElementById("code").value = code;
+    }
+
+    function generateEditCode() {
+        const code = Math.random().toString(36).substring(2, 10).toUpperCase(); // Generate random code
+        document.getElementById("editCode").value = code;
+    }
+
+    function openModal() {
+        document.getElementById("addMahasiswaModal").style.display = "block";
+    }
+
+    function closeModal() {
+        document.getElementById("addMahasiswaModal").style.display = "none";
+    }
+
+    function openEditModal(id, nama, nim, kelas, whatsapp, code) {
+        document.getElementById("editId").value = id;
+        document.getElementById("editNama").value = nama;
+        document.getElementById("editNim").value = nim;
+        document.getElementById("editKelas").value = kelas;
+        document.getElementById("editWhatsapp").value = whatsapp;
+        document.getElementById("editCode").value = code;
+    
+        document.getElementById("editMahasiswaModal").style.display = "block";
+    }
+    
+    function closeEditModal() {
+        document.getElementById("editMahasiswaModal").style.display = "none";
+    }
+    
+    function openDeleteModal(id) {
+        document.getElementById("deleteId").value = id;
+        document.getElementById("deleteMahasiswaModal").style.display = "block";
+    }
+    
+    function closeDeleteModal() {
+        document.getElementById("deleteMahasiswaModal").style.display = "none";
+    }
+    
+
+    function submitForm(event) {
+        event.preventDefault();
+        alert('Data mahasiswa telah disubmit!');
+        closeModal();
+    }
+
+    function searchTable() {
+        const input = document.getElementById("searchInput").value.toLowerCase();
+        const table = document.getElementById("mahasiswaTable");
+        const rows = table.getElementsByTagName("tr");
+    
+        for (let i = 1; i < rows.length; i++) { // Start from 1 to skip table header
+            const cells = rows[i].getElementsByTagName("td");
+            let rowMatches = false;
+    
+            for (let j = 1; j < cells.length - 1; j++) { // Skip actions column
+                const cellValue = cells[j].textContent || cells[j].innerText;
+                if (cellValue.toLowerCase().indexOf(input) > -1) {
+                    rowMatches = true;
+                    break;
+                }
+            }
+    
+            rows[i].style.display = rowMatches ? "" : "none";
+        }
+    }    
+
+    window.onclick = function(event) {
+        const modal = document.getElementById("addMahasiswaModal");
+        if (event.target == modal) {
+            closeModal();
+        }
+    };
+
+    window.onload = function() {
+        const tableRows = document.querySelectorAll('#mahasiswaTable tbody tr');
+        tableRows.forEach((row, index) => {
+            const code = localStorage.getItem(`code-${index + 1}`);
+            if (code) {
+                const codeCell = row.children[5];
+                codeCell.innerHTML = `
+                    <span class="code-display">${code}</span>
+                    <button class="btn btn-secondary" onclick="resetCode(this)">Ulangi</button>
+                `;
+            }
+        });
+    };
+</script>
+
+{% endblock %}

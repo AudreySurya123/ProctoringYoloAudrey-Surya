@@ -1,0 +1,204 @@
+{% extends "layouts.html" %}
+{% block content %}
+
+<div class="welcome-message">
+    <h1>Data Proctoring</h1>
+    <form action="{{ url_for('delete_all_records') }}" method="post" style="margin-bottom: 20px;">
+        <button type="submit" onclick="return confirm('Are you sure you want to delete all records?');">Hapus Semua Log</button>
+    </form>
+    <div class="search-container" style="margin-bottom: 20px;">
+        <input type="text" id="searchInput" placeholder="Cari data berdasarkan nama, NIM, atau lainnya..." onkeyup="searchTable()" />
+    </div>
+</div>
+
+<div class="table-container">
+    <table class="styled-table" id="proctoringTable">
+        <thead>
+            <tr>
+                <th>No</th>
+                <th>Nama Mahasiswa</th>
+                <th>NIM</th>
+                <th>Kelas</th>
+                <th>Mata Kuliah</th>
+                <th>Kode Akses</th>
+                <th>Waktu</th>
+                <th>Bentuk Kecurangan</th>
+                <th>Bukti Kecurangan</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for record in records|reverse %}
+            <tr>
+                <td>{{ loop.index }}</td>
+                <td>{{ record[1] }}</td> <!-- Nama Mahasiswa -->
+                <td>{{ record[2] }}</td> <!-- NIM -->
+                <td>{{ record[3] }}</td> <!-- Kelas -->
+                <td>{{ record[4] }}</td> <!-- Mata Kuliah -->
+                <td>{{ record[5] }}</td> <!-- Code -->
+                <td>{{ record[6] }}</td> <!-- Waktu -->
+                <td>{{ record[7] }}</td> <!-- Bentuk Kecurangan -->
+                <td>
+                    <img src="{{ url_for('serve_dist_static', filename='captures/' + record[8]) }}" alt="Bukti Kecurangan" width="100" onclick="showPopup(this.src)">
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<div id="popup" class="popup" onclick="hidePopup()">
+    <span class="popup-close">&times;</span>
+    <img id="popup-img" class="popup-content">
+</div>
+
+<style>
+    .search-container {
+        text-align: center;
+    }
+
+    .search-container input {
+        width: 100%;
+        max-width: 400px;
+        padding: 10px 15px;
+        font-size: 16px;
+        border: 1px solid #ccc;
+        border-radius: 25px;
+        box-shadow: 0px 2px 6px rgba(0, 0, 0, 0.1);
+        transition: box-shadow 0.3s;
+    }
+
+    .search-container input:focus {
+        outline: none;
+        box-shadow: 0px 4px 10px rgba(0, 123, 255, 0.4);
+    }
+
+    .table-container {
+        width: 100%;
+        margin: 20px auto;
+        background-color: #f9f9f9;
+        padding: 20px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        border-radius: 8px;
+    }
+
+    .styled-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 16px;
+        text-align: left;
+    }
+
+    .styled-table thead tr {
+        background-color: #157eff;
+        color: white;
+        text-align: left;
+        font-size: 18px;
+    }
+
+    .styled-table th, .styled-table td {
+        padding: 10px 12px;
+    }
+
+    .styled-table tbody tr:nth-of-type(even) {
+        background-color: #f3f3f3;
+    }
+
+    .styled-table tbody tr:hover {
+        background-color: #f1f1f1;
+    }
+
+    button {
+        background-color: #ff4757;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        padding: 10px 15px;
+        cursor: pointer;
+        font-size: 16px;
+        transition: background-color 0.3s;
+    }
+
+    button:hover {
+        background-color: #e84118;
+    }
+
+    .popup {
+        display: none;
+        position: fixed;
+        z-index: 1;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.8);
+    }
+
+    .popup-content {
+        margin: auto;
+        display: block;
+        max-width: 90%;
+        max-height: 90%;
+        border-radius: 8px;
+    }
+
+    .popup-close {
+        position: absolute;
+        top: 20px;
+        right: 35px;
+        color: white;
+        font-size: 40px;
+        font-weight: bold;
+        cursor: pointer;
+    }
+
+    .popup:hover .popup-close {
+        color: #ff4757;
+    }
+</style>
+
+<script>
+    function searchTable() {
+        var input, filter, table, rows, cells, match;
+        input = document.getElementById("searchInput");
+        filter = input.value.toLowerCase();
+        table = document.getElementById("proctoringTable");
+        rows = table.getElementsByTagName("tr");
+
+        for (var i = 1; i < rows.length; i++) {
+            cells = rows[i].getElementsByTagName("td");
+            match = false;
+
+            for (var j = 0; j < cells.length; j++) {
+                if (cells[j].innerText.toLowerCase().includes(filter)) {
+                    match = true;
+                    break;
+                }
+            }
+
+            rows[i].style.display = match ? "" : "none";
+        }
+    }
+
+    function showPopup(src) {
+        var popup = document.getElementById("popup");
+        var popupImg = document.getElementById("popup-img");
+        popup.style.display = "block";
+        popupImg.src = src;
+
+        document.addEventListener("keydown", handleKeyPress);
+    }
+
+    function hidePopup() {
+        var popup = document.getElementById("popup");
+        popup.style.display = "none";
+        document.removeEventListener("keydown", handleKeyPress);
+    }
+
+    function handleKeyPress(event) {
+        if (event.key === "q" || event.key === "Q") {
+            hidePopup();
+        }
+    }
+</script>
+
+{% endblock %}

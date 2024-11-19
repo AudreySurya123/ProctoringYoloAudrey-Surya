@@ -1,0 +1,107 @@
+{% extends "layouts.html" %}
+{% block content %}
+
+<div class="welcome-message">
+    <h1>Data Admin</h1>
+</div>
+
+<div class="table-container">
+    <table class="styled-table">
+        <thead>
+            <tr>
+                <th>No</th>
+                <th>Username</th>
+                <th>Email</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>1</td>
+                <td>user1</td>
+                <td>user1@example.com</td>
+            </tr>
+            <tr>
+                <td>2</td>
+                <td>user2userlongnamemorethanexpected</td>
+                <td>user2@example.com</td>
+            </tr>
+            <!-- Tambahkan baris sesuai kebutuhan -->
+        </tbody>
+    </table>
+</div>
+
+<style>
+    .table-container {
+        width: 100%; /* Adjust the table width */
+        margin: 20px auto; /* Center the table */
+        background-color: #f9f9f9;
+        padding: 20px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        border-radius: 8px;
+    }
+
+    .button-container {
+        text-align: right; /* Align button to the right */
+        margin-bottom: 10px; /* Space below the button */
+    }
+
+    .btn {
+        padding: 6px 10px; /* Compact button size */
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 14px;
+    }
+
+    .btn-add {
+        background-color: #007bff; /* Blue color for add button */
+        color: white;
+    }
+
+    .btn-add:hover {
+        background-color: #0056b3; /* Darker blue on hover */
+    }
+
+    .styled-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 16px; /* Smaller font size for compact look */
+        text-align: left;
+        table-layout: auto; /* Allow automatic adjustment of column width */
+    }
+
+    .styled-table thead tr {
+        background-color: #157eff;
+        color: white;
+        text-align: left;
+        font-size: 18px; /* Larger font for header */
+    }
+
+    .styled-table th, .styled-table td {
+        padding: 10px 12px; /* Smaller padding for compact look */
+        white-space: normal; /* Allow text wrapping */
+    }
+
+    .styled-table tbody tr:nth-of-type(even) {
+        background-color: #f3f3f3;
+    }
+
+    .styled-table tbody tr:hover {
+        background-color: #f1f1f1;
+    }
+
+    .action-btn {
+        background-color: #009879;
+        color: white;
+        border: none;
+        padding: 5px 10px;
+        cursor: pointer;
+        border-radius: 5px;
+    }
+
+    .action-btn:hover {
+        background-color: #006f58;
+    }
+</style>
+
+{% endblock %}
